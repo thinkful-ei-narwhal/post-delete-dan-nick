@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
 const data = require('../store');
-// const { v3: uuidv3 } = require('uuid');
+const { v4: uuid } = require('uuid');
 
 const app = express();
 const { NODE_ENV, API_TOKEN } = require('./config');
@@ -55,7 +55,7 @@ app.get('/address', (req, res) => {
 });
 
 app.post('/address', requireAuth, (req, res) => {
-  const id = 123;
+  const id = uuid();
   const { firstName, lastName, address1, address2 = false, city, state, zip } = req.body;
 
   if (!firstName) {
@@ -83,13 +83,18 @@ app.post('/address', requireAuth, (req, res) => {
     return res.status(400);
   }
 
-  data.push({ id, firstName, lastName, address1, address2, city, state, zip });
-  res.status(201).json(data);
+  const newAddress = { id, firstName, lastName, address1, address2, city, state, zip };
+
+  data.push(newAddress);
+  res.status(201).json(newAddress);
 });
 
-// app.delete('/address', requireAuth, (req, res) => {
+app.delete('/address/:id', (req, res) => {
+  const indexOfAddress= data.findIndex(user => user.id = req.params.id);
+  data.splice(indexOfAddress, 1);
+  console.log(data);
+  res.status(204).end();
+});
 
-
-// });
 
 module.exports = app;
